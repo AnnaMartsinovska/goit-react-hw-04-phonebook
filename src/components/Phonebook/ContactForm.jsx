@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyledForm,
   StyledText,
@@ -8,67 +8,66 @@ import {
 import { nanoid } from 'nanoid';
 import propTypes from 'prop-types';
 
-class ContactForm extends React.Component {
-  static propTypes = {
-    contacts: propTypes.array.isRequired,
-    onAddContacts: propTypes.func.isRequired,
-  };
+const ContactForm = ({ contacts, onAddContacts }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-  state = {
-    name: '',
-    number: '',
-  };
-
-  handleChangeInput = e => {
+  const handleChangeInput = e => {
     const { target } = e;
     const { value, name } = target;
-    this.setState({ [name]: value });
+
+    if (name === 'name') {
+      setName(value);
+    } else if (name === 'number') {
+      setNumber(value);
+    }
   };
 
-  handleOnSubmit = e => {
+  const handleOnSubmit = e => {
     e.preventDefault();
 
-    const { contacts, onAddContacts } = this.props;
     const contact = {
       id: nanoid(),
-      name: this.state.name.trim(),
-      number: this.state.number.trim(),
+      name: name.trim(),
+      number: number.trim(),
     };
 
-    if (!this.state.name.trim()) {
+    if (!name.trim()) {
       return;
     }
 
     onAddContacts(contact);
 
-    this.setState({
-      contacts: [contact, ...contacts],
-    });
+    setName('');
+    setNumber('');
 
     e.target.reset();
   };
 
-  render() {
-    return (
-      <StyledForm onSubmit={this.handleOnSubmit}>
-        <StyledText>Name</StyledText>
-        <StyledInput
-          onChange={this.handleChangeInput}
-          type="text"
-          name="name"
-          required
-        />
-        <StyledText>Number</StyledText>
-        <StyledInput
-          onChange={this.handleChangeInput}
-          type="tel"
-          name="number"
-          required
-        />
-        <StyledButton type="submit">Add contact</StyledButton>
-      </StyledForm>
-    );
-  }
-}
+  return (
+    <StyledForm onSubmit={handleOnSubmit}>
+      <StyledText>Name</StyledText>
+      <StyledInput
+        onChange={handleChangeInput}
+        type="text"
+        name="name"
+        required
+      />
+      <StyledText>Number</StyledText>
+      <StyledInput
+        onChange={handleChangeInput}
+        type="tel"
+        name="number"
+        required
+      />
+      <StyledButton type="submit">Add contact</StyledButton>
+    </StyledForm>
+  );
+};
 
 export default ContactForm;
+
+ContactForm.propTypes = {
+  contacts: propTypes.array.isRequired,
+  onAddContacts: propTypes.func.isRequired,
+};
